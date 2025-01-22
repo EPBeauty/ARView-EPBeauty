@@ -6,7 +6,7 @@
     <title>EP Brightening Solution AR Experience</title>
 
     <!-- Include Model-Viewer for AR -->
-    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.4.0/dist/model-viewer.min.js"></script>
 
     <style>
         body {
@@ -24,86 +24,16 @@
             width: 100%;
             height: 100%;
             background-color: #f5f5f5;
-            display: block;
         }
 
-        /* Instructions Overlay */
-        .ui-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            padding: 20px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            text-align: center;
-        }
-
-        .title {
-            font-size: 24px;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .instructions {
-            font-size: 16px;
-            margin-bottom: 15px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-        }
-
-        .loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            display: none;
-        }
-
-        /* AR Button */
+        /* AR Button (No button here because we want to trigger AR automatically) */
         .ar-button {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 100, 255, 0.7);
-            padding: 12px 25px;
-            color: white;
-            font-size: 18px;
-            border-radius: 30px;
-            cursor: pointer;
-            z-index: 1001;
-        }
-
-        .ar-button:hover {
-            background-color: rgba(0, 100, 255, 1);
-        }
-
-        .ar-button:focus {
-            outline: none;
-        }
-
-        /* Hide the AR button when AR is triggered */
-        .ar-button.hidden {
             display: none;
         }
     </style>
 </head>
 <body>
-    <!-- Instructions and Overlay for the AR Mode -->
-    <div class="ui-overlay">
-        <div class="title">EP Brightening Solution</div>
-        <div class="instructions">Tap the AR button to place the product in your space</div>
-    </div>
-
-    <!-- Loading indicator while model loads -->
-    <div class="loading">Loading 3D Model...</div>
-
-    <!-- Model-Viewer for the 3D Model -->
+    <!-- Model-Viewer for 3D Model with AR configuration -->
     <model-viewer
         id="product-viewer"
         src="lmm.glb"             <!-- Path to your 3D model -->
@@ -117,48 +47,17 @@
         environment-image="neutral"
         shadow-softness="1"
         alt="EP Brightening Solution 3D Model"
-        style="display: none;"   <!-- Hidden initially -->
+        ar-placement="floor"    <!-- Enable floor placement -->
+        style="width: 100%; height: 100vh;"   <!-- Fullscreen model viewer -->
     ></model-viewer>
 
-    <!-- AR Button (Appears before AR is triggered) -->
-    <div class="ar-button" id="ar-button">
-        Tap to view in AR
-    </div>
-
     <script>
+        // Ensure that model-viewer is ready and triggers AR immediately upon page load
         document.addEventListener('DOMContentLoaded', function() {
             const modelViewer = document.querySelector('model-viewer');
-            const loadingElement = document.querySelector('.loading');
-            const instructionsElement = document.querySelector('.instructions');
-            const arButton = document.getElementById('ar-button');
 
-            // Show loading state while the model is loading
-            loadingElement.style.display = 'block';
-
-            // Handle model load event
-            modelViewer.addEventListener('load', () => {
-                loadingElement.style.display = 'none';  // Hide loading message
-            });
-
-            // Update instructions when AR mode changes
-            modelViewer.addEventListener('ar-status', (event) => {
-                if (event.detail.status === 'session-started') {
-                    instructionsElement.textContent = 'Move your phone to scan the environment';
-                } else if (event.detail.status === 'not-presenting') {
-                    instructionsElement.textContent = 'Tap the AR button to place the product in your space';
-                }
-            });
-
-            // Handle errors during model loading
-            modelViewer.addEventListener('error', () => {
-                loadingElement.textContent = 'Error loading model. Please refresh.';
-            });
-
-            // AR Button click event to trigger AR
-            arButton.addEventListener('click', () => {
-                modelViewer.style.display = 'block';  // Show the AR model-viewer
-                arButton.classList.add('hidden');     // Hide the AR button
-            });
+            // Automatically trigger AR upon page load (camera permissions will be prompted)
+            modelViewer.enterAR();
         });
     </script>
 </body>
