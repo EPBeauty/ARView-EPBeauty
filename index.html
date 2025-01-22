@@ -17,5 +17,25 @@
   </style>
 </head>
 <body>
-  <h1 style="text-align: center; color: white; position: absolute; to
+  <h1 style="text-align: center; color: white; position: absolute; top: 10%; width: 100%; text-align: center;">
+    Scan to see EP Brightening Solution 3D in AR!
+  </h1>
 
+  <!-- AR Scene Setup -->
+  <a-scene embedded arjs>
+    <!-- Marker (can be a QR code or custom marker) -->
+    <a-marker preset="hiro">
+      <!-- 3D Model with scale set to 1 1 1 (original size) -->
+      <a-entity 
+        gltf-model="url(lmm.glb)"
+        position="0 0 0"
+        scale="1 1 1">
+      </a-entity>
+    </a-marker>
+
+    <!-- Camera Setup -->
+    <a-camera></a-camera>
+  </a-scene>
+
+</body>
+</html>
