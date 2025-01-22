@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EP Brightening Solution AR Experience</title>
+
+    <!-- Core Libraries -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        .ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .instructions {
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .error {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="ui-overlay">
+        <div class="title">EP Brightening Solution</div>
+        <div class="instructions">Point your camera at the HIRO marker to see the product in AR</div>
+    </div>
+    
+    <div class="loading">Loading 3D Model...</div>
+    <div class="error">Unable to load 3D model. Please try again.</div>
+
+    <a-scene embedded arjs="debugUIEnabled: false;" vr-mode-ui="enabled: false">
+        <a-assets>
+            <a-asset-item id="product-model" src="lmm.glb"></a-asset-item>
+        </a-assets>
+
+        <a-marker preset="hiro">
+            <a-entity
+                id="product"
+                position="0 0 0"
+                rotation="0 0 0"
+                scale="0.5 0.5 0.5"
+                gltf-model="#product-model"
+                animation="property: rotation; to: 0 360 0; dur: 10000; easing: linear; loop: true">
+            </a-entity>
+        </a-marker>
+
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingElement = document.querySelector('.loading');
+            const errorElement = document.querySelector('.error');
+            const productEntity = document.querySelector('#product');
+
+            // Show loading state
+            loadingElement.style.display = 'block';
+
+            // Handle model loading success
+            productEntity.addEventListener('model-loaded', function() {
+                loadingElement.style.display = 'none';
+            });
+
+            // Handle model loading error
+            productEntity.addEventListener('model-error', function() {
+                loadingElement.style.display = 'none';
+                errorElement.style.display = 'block';
+                setTimeout(() => {
+                    errorElement.style.display = 'none';
+                }, 3000);
+            });
+
+            // Handle marker found/lost events
+            const marker = document.querySelector('a-marker');
+            marker.addEventListener('markerFound', function() {
+                document.querySelector('.instructions').style.display = 'none';
+            });
+            
+            marker.addEventListener('markerLost', function() {
+                document.querySelector('.instructions').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
