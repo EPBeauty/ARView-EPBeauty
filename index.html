@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EP Brightening Solution AR Experience</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/model-viewer/3.4.0/model-viewer-umd.min.js"></script>
+    
+    <!-- Important: Model Viewer script with type="module" -->
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    
     <style>
         body {
             margin: 0;
@@ -54,30 +57,7 @@
             padding: 20px;
             border-radius: 10px;
             display: none;
-        }
-        
-        .permission-prompt {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            display: none;
-            text-align: center;
-            z-index: 2000;
-        }
-        
-        .permission-prompt button {
-            margin-top: 15px;
-            padding: 8px 16px;
-            background: #007AFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            z-index: 1000;
         }
     </style>
 </head>
@@ -88,12 +68,8 @@
     </div>
 
     <div class="loading">Loading 3D Model...</div>
-    
-    <div class="permission-prompt">
-        <div>This experience needs camera access to enable AR features</div>
-        <button onclick="requestPermissions()">Allow Camera Access</button>
-    </div>
 
+    <!-- Model Viewer Element -->
     <model-viewer
         src="lmm.glb"
         ar
@@ -105,7 +81,6 @@
         exposure="1"
         environment-image="neutral"
         shadow-softness="1"
-        poster="poster.webp"
         ar-placement="floor"
         ar-scale="fixed"
         alt="EP Brightening Solution 3D Model">
@@ -116,23 +91,23 @@
             const modelViewer = document.querySelector('model-viewer');
             const loadingElement = document.querySelector('.loading');
             const instructionsElement = document.querySelector('.instructions');
-            const permissionPrompt = document.querySelector('.permission-prompt');
 
+            // Show loading state
             loadingElement.style.display = 'block';
 
+            // Handle model loading
             modelViewer.addEventListener('load', () => {
                 loadingElement.style.display = 'none';
+                console.log('Model loaded successfully');
             });
 
-            if (navigator.xr) {
-                navigator.xr.isSessionSupported('immersive-ar')
-                    .then((supported) => {
-                        if (supported) {
-                            permissionPrompt.style.display = 'block';
-                        }
-                    });
-            }
+            // Handle model loading error
+            modelViewer.addEventListener('error', (error) => {
+                console.error('Error loading model:', error);
+                loadingElement.textContent = 'Error loading model. Please check file path and refresh.';
+            });
 
+            // Update instructions when AR mode changes
             modelViewer.addEventListener('ar-status', (event) => {
                 if (event.detail.status === 'session-started') {
                     instructionsElement.textContent = 'Move your phone to scan the environment';
@@ -141,21 +116,11 @@
                 }
             });
 
-            modelViewer.addEventListener('error', () => {
-                loadingElement.textContent = 'Error loading model. Please refresh.';
-            });
+            // Check if AR is supported
+            if (!modelViewer.canActivateAR) {
+                console.log('AR not supported on this device/browser');
+            }
         });
-
-        function requestPermissions() {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function(stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                    document.querySelector('.permission-prompt').style.display = 'none';
-                })
-                .catch(function(err) {
-                    console.error('Error getting camera permission:', err);
-                });
-        }
     </script>
 </body>
 </html>
